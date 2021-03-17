@@ -7,11 +7,8 @@ python:
 services:
   - mysql
 env:
-  - DB=mysql DEBUG=f
-before_script:
-  - mysql -u root -e "CREATE USER 'ensembl'@'localhost' IDENTIFIED BY '';"
-  - mysql -u root -e "GRANT ALL ON *.* TO 'ensembl'@'localhost';"
+  - DEBUG=f
 install:
   - pip install -r requirements-dev.txt
 script:
-  - coverage run --source='./src/ensembl' ./src/manage.py test ensembl.production.djcore.tests
+  - coverage run --source='./src/ensembl' ./src/manage.py test ensembl.production.masterdb.tests
