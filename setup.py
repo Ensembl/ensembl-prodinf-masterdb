@@ -26,12 +26,12 @@ def import_requirements():
 
 
 setup(
-    name='ensembl-prodinf-djcore',
+    name='ensembl-prodinf-masterdb',
     version=version,
     namespace_packages=['ensembl'],
     packages=find_namespace_packages(where='src', include=['ensembl.production.*']),
     package_dir={'': 'src'},
-    url='https://github.com/Ensembl/ensembl-prodinf-djcore',
+    url='https://github.com/Ensembl/ensembl-prodinf-masterdb',
     license='APACHE 2.0',
     author='mchakiachvili',
     author_email='mchakiachvili@ebi.ac.uk',

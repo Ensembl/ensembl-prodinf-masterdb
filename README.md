@@ -1,15 +1,15 @@
-# ensembl-prodinf-djcore
+# ensembl-prodinf-masterdb
 
-This repository contains a set of useful core Django functionalities that may be extended in other pass included in current Ensembl Production Services portal - avoiding circular references for the most part.
+This repository is issued from initial https://github.com/Ensembl/ensembl-production-services repo split. 
 
 INSTALL
 =======
 
 1. clone the repo
    
-    git clone https://github.com/Ensembl/ensembl-prodinf-djcore
+    git clone https://github.com/Ensembl/ensembl-prodinf-masterdb
 
-2. cd ensembl-prodinf-djcore
+2. cd ensembl-prodinf-masterdb
    
 3. setup.py sdist 
     ```
@@ -19,5 +19,5 @@ INSTALL
     pip install sdist/[package_name].tar.gz
     ```
    
-    pip install -e https://github.com/Ensembl/ensembl-prodinf-djcore#egg=ensembl-prodinf-djcore
+    pip install -e https://github.com/Ensembl/ensembl-prodinf-masterdb#egg=ensembl-prodinf-masterdb
 
