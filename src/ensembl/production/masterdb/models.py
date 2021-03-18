@@ -14,7 +14,7 @@ from django.template.defaultfilters import truncatechars
 from multiselectfield import MultiSelectField
 
 from ensembl.production.djcore.models import NullTextField, BaseTimestampedModel, HasCurrent, HasDescription
-from ensembl.production.masterdb.fields import EnumField
+from ensembl.production.djcore.fields import EnumField
 
 DB_TYPE_CHOICES_BIOTYPE = (('cdna', 'cdna'),
                            ('core', 'core'),

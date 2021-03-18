@@ -4,8 +4,6 @@ dist: xenial
 python:
   - "3.7"
   - "3.8"
-services:
-  - mysql
 env:
   - DEBUG=f
 install:
