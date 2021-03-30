@@ -13,7 +13,7 @@ from django.conf.urls import url, include
 from rest_framework_nested import routers
 
 from ensembl.production.masterdb.api import viewsets
-from ensembl.production.masterdb.router import CustomRouter
+from ensembl.production.masterdb.api.router import MasterDBRestRouter
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -32,7 +32,7 @@ schema_view = get_schema_view(
 
 # API router setup
 router = routers.DefaultRouter(trailing_slash=False)
-router_attrib = CustomRouter()
+router_attrib = MasterDBRestRouter()
 # Services URIs configuration
 
 router.register(prefix=r'analysisdescription',
