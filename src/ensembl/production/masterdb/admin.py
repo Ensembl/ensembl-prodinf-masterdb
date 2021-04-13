@@ -227,10 +227,7 @@ class AnalysisDescriptionForm(forms.ModelForm):
 
 @admin.register(AnalysisDescription)
 class AnalysisDescriptionAdmin(HasCurrentAdmin):
-    class Media:
-        css = {
-            'all': ('css/production_admin.css',)
-        }
+
 
     form = AnalysisDescriptionForm
     fields = ('logic_name', 'description', 'display_label', 'web_data',

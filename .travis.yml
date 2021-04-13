@@ -4,8 +4,10 @@ dist: xenial
 python:
   - "3.7"
   - "3.8"
+  - "3.9"
 env:
-  - DEBUG=f
+  - DJANGO=3.1.8 DB=sqlite
+  - DJANGO=3.2.0 DB=sqlite
 install:
   - pip install -r requirements-dev.txt
 script:
