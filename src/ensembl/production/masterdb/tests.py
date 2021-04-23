@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.db.utils import IntegrityError
 from rest_framework import status
 from rest_framework.test import APITestCase
+from django.test import TestCase
 
 from ensembl.production.masterdb.api.serializers import WebDataSerializer
 from ensembl.production.masterdb.models import *
@@ -269,7 +270,8 @@ class AnalysisTest(APITestCase):
                                      content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Test delete
-        response = self.client.delete(reverse('analysisdescription-detail', kwargs={'logic_name': 'bgi_genewise_geneset'}))
+        response = self.client.delete(
+            reverse('analysisdescription-detail', kwargs={'logic_name': 'bgi_genewise_geneset'}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         # Test post wth webdata, reusing existing webdata for delete
         valid_payload = {
@@ -658,3 +660,13 @@ class AnalysisTest(APITestCase):
         with self.assertRaises(IntegrityError):
             MetaKey.objects.create(**meta_key_values)
 
+
+class FieldsTestCase(TestCase):
+    fixtures = ['ensembl_production_api']
+
+    def testTrimmedFields(self):
+        analysis = AnalysisDescription.objects.first()
+        analysis.description = "A long text with \nnew lines and \rcarriage return"
+        analysis.save()
+        saved = AnalysisDescription.objects.get(pk=analysis.analysis_description_id)
+        self.assertEqual(saved.description, "A long text with new lines and carriage return")
