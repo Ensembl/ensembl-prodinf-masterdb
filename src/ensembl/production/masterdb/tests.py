@@ -661,17 +661,6 @@ class AnalysisTest(APITestCase):
             MetaKey.objects.create(**meta_key_values)
 
 
-class FieldsTestCase(TestCase):
-    fixtures = ['master_db']
-
-    def testTrimmedFields(self):
-        analysis = AnalysisDescription.objects.first()
-        analysis.description = "A long text with \nnew lines and \rcarriage return"
-        analysis.save()
-        saved = AnalysisDescription.objects.get(pk=analysis.analysis_description_id)
-        self.assertEqual(saved.description, "A long text with new lines and carriage return")
-
-
 class TestUpdateMail(TestCase):
     fixtures = ['master_db']
 
