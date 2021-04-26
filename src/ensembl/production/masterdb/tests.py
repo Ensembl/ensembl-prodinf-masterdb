@@ -25,7 +25,7 @@ User = get_user_model()
 
 class AnalysisTest(APITestCase):
     """ Test module for AnalysisDescription model """
-    fixtures = ['ensembl_production_api']
+    fixtures = ['master_db']
 
     # Test Analysis description endpoints
     def testAnalysisDescriptionPost(self):
@@ -662,7 +662,7 @@ class AnalysisTest(APITestCase):
 
 
 class FieldsTestCase(TestCase):
-    fixtures = ['ensembl_production_api']
+    fixtures = ['master_db']
 
     def testTrimmedFields(self):
         analysis = AnalysisDescription.objects.first()
