@@ -271,7 +271,8 @@ class AnalysisTest(APITestCase):
                                      content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Test delete
-        response = self.client.delete(reverse('analysisdescription-detail', kwargs={'logic_name': 'bgi_genewise_geneset'}))
+        response = self.client.delete(
+            reverse('analysisdescription-detail', kwargs={'logic_name': 'bgi_genewise_geneset'}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         # Test post wth webdata, reusing existing webdata for delete
         valid_payload = {
@@ -660,7 +661,7 @@ class AnalysisTest(APITestCase):
         with self.assertRaises(IntegrityError):
             MetaKey.objects.create(**meta_key_values)
 
-
+            
 class TestUpdateMail(TestCase):
     fixtures = ['master_db']
 
@@ -702,3 +703,15 @@ class TestUpdateMail(TestCase):
         self.assertIn('presite', mail.outbox[0].body, "Presite Value is not in mail body")
         self.assertIn('is_current', mail.outbox[0].body, "Is_Current attribute is not in mail body")
         self.assertIn('so_acc', mail.outbox[0].body, "Presite Value is not in mail body")
+
+        
+class FieldsTestCase(TestCase):
+    fixtures = ['master_db']
+
+    def testTrimmedFields(self):
+        analysis = AnalysisDescription.objects.first()
+        analysis.description = "A long text with \nnew lines and \rcarriage return"
+        analysis.save()
+        saved = AnalysisDescription.objects.get(pk=analysis.analysis_description_id)
+        self.assertEqual(saved.description, "A long text with new lines and carriage return")
+
