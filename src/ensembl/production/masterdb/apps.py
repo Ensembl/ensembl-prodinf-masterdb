@@ -16,3 +16,9 @@ class EnsemblProductionDbConfig(AppConfig):
     name = 'ensembl.production.masterdb'
     label = 'ensembl_production_db'
     verbose_name = "Production Database"
+
+    def ready(self):
+        """
+        Import automated signals
+        """
+        from ensembl.production.masterdb import signals

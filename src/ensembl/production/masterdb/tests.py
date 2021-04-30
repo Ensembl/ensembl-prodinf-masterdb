@@ -16,6 +16,7 @@ from django.db.utils import IntegrityError
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.test import TestCase
+from django.core import mail
 
 from ensembl.production.masterdb.api.serializers import WebDataSerializer
 from ensembl.production.masterdb.models import *
@@ -660,7 +661,50 @@ class AnalysisTest(APITestCase):
         with self.assertRaises(IntegrityError):
             MetaKey.objects.create(**meta_key_values)
 
+            
+class TestUpdateMail(TestCase):
+    fixtures = ['master_db']
 
+    def test_signal_biotype_update(self):
+        """
+            "pk": 2,
+    "fields": {
+      "created_by": null,
+      "created_at": "2019-03-21T15:00:34Z",
+      "modified_by": 101214,
+      "modified_at": "2014-11-06T15:43:12Z",
+      "is_current": 1,
+      "name": "IG_C_gene",
+      "is_dumped": 1,
+      "object_type": "transcript",
+      "db_type": "core,otherfeatures,presite",
+      "attrib_type_id": null,
+      "description": null,
+      "biotype_group": "coding",
+      "so_acc": "SO:0000478"
+    }
+  },
+        :return:
+        """
+        biotype = MasterBiotype.objects.get(pk=2)
+        biotype.object_type = 'gene'
+        biotype.biotype_group = 'pseudogene'
+        attrib_type = MasterAttribType.objects.first()
+        biotype.attrib_type = attrib_type
+        biotype.db_type = ['core', 'otherfeatures']
+        biotype.is_current = False
+        biotype.so_acc = "SO:01978"
+        biotype.save()
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, '[Production MasterDB] Biotype updated !')
+        self.assertIn('attrib_type', mail.outbox[0].body, "Attrib type group is not in mail body")
+        self.assertIn('biotype_group', mail.outbox[0].body, "BioType group is not in mail body")
+        self.assertIn('db_type', mail.outbox[0].body, "DbType group is not in mail body")
+        self.assertIn('presite', mail.outbox[0].body, "Presite Value is not in mail body")
+        self.assertIn('is_current', mail.outbox[0].body, "Is_Current attribute is not in mail body")
+        self.assertIn('so_acc', mail.outbox[0].body, "Presite Value is not in mail body")
+
+        
 class FieldsTestCase(TestCase):
     fixtures = ['master_db']
 
@@ -670,3 +714,4 @@ class FieldsTestCase(TestCase):
         analysis.save()
         saved = AnalysisDescription.objects.get(pk=analysis.analysis_description_id)
         self.assertEqual(saved.description, "A long text with new lines and carriage return")
+
