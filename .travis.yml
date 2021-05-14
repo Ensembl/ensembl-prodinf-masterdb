@@ -6,7 +6,7 @@ python:
   - "3.8"
   - "3.9"
 env:
-  - DJANGO=3.2.2 DB=sqlite
+  - DB=sqlite
 install:
   - pip install -r requirements-dev.txt
 script:
