@@ -29,6 +29,6 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
+    path(f'masterdb', include('ensembl.production.masterdb.api.urls')),
     path(f'', admin.site.urls),
-    path(f'masterdb/', include('ensembl.production.masterdb.urls')),
 ]
