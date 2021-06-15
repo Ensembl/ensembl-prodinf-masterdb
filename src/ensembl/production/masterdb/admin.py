@@ -105,6 +105,12 @@ class AttribTypeAdmin(HasCurrentAdmin):
     inlines = (AttribInline,)
     list_filter = ['code', 'name'] + HasCurrentAdmin.list_filter
 
+    def get_readonly_fields(self, request, obj=None):
+        read_only_fields = super().get_readonly_fields(request, obj)
+        if obj is not None and 'code' not in read_only_fields:
+            read_only_fields += ['code', ]
+        return read_only_fields
+
 
 @admin.register(MasterAttrib)
 class AttribAdmin(HasCurrentAdmin):
