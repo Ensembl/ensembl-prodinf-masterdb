@@ -103,6 +103,13 @@ class AttribTypeAdmin(HasCurrentAdmin):
               ('modified_by', 'modified_at'))
     search_fields = ('code', 'name', 'description')
     inlines = (AttribInline,)
+    list_filter = ['code', 'name'] + HasCurrentAdmin.list_filter
+
+    def get_readonly_fields(self, request, obj=None):
+        read_only_fields = super().get_readonly_fields(request, obj)
+        if obj is not None and 'code' not in read_only_fields:
+            read_only_fields += ['code', ]
+        return read_only_fields
 
 
 @admin.register(MasterAttrib)
@@ -124,6 +131,7 @@ class AttribSetAdmin(HasCurrentAdmin):
     list_display = ('attrib_set_id', 'attrib', 'is_current')
     search_fields = ('attrib__value', 'attrib_set_id')
     ordering = ('-modified_at',)
+    list_filter = ['attrib_set_id', 'attrib'] + HasCurrentAdmin.list_filter
 
 
 @admin.register(MasterBiotype)
@@ -140,6 +148,8 @@ class BioTypeAdmin(HasCurrentAdmin):
         'so_term')
     search_fields = (
         'name', 'object_type', 'db_type', 'biotype_group', 'attrib_type__name', 'description', 'so_acc', 'so_term')
+    list_filter = [
+        'name', 'object_type', 'db_type', 'biotype_group', 'so_acc', 'so_term'] + HasCurrentAdmin.list_filter
 
 
 @admin.register(AnalysisDescription)
@@ -152,6 +162,7 @@ class AnalysisDescriptionAdmin(HasCurrentAdmin):
               ('modified_by', 'modified_at'))
     list_display = ('logic_name', 'short_description', 'web_data_label', 'is_current', 'displayable')
     search_fields = ('logic_name', 'display_label', 'description', 'web_data__data')
+    list_filter = ['logic_name', 'displayable'] + HasCurrentAdmin.list_filter
 
     def web_data_label(self, obj):
         return obj.web_data.label if obj.web_data else 'EMPTY'
@@ -168,6 +179,7 @@ class MetakeyAdmin(HasCurrentAdmin):
               ('modified_by', 'modified_at'))
     ordering = ('name',)
     search_fields = ('name', 'db_type', 'description')
+    list_filter = ['name', 'db_type', 'is_optional'] + HasCurrentAdmin.list_filter
 
     def get_readonly_fields(self, request, obj=None):
         read_only_fields = super().get_readonly_fields(request, obj)
@@ -214,6 +226,9 @@ class MasterExternalDbAdmin(HasCurrentAdmin):
     search_fields = (
         'db_name', 'db_release', 'status', 'db_display_name', 'priority', 'type', 'secondary_db_name',
         'secondary_db_table')
+    list_filter = [
+        'db_name', 'db_release', 'status', 'db_display_name', 'priority', 'type', 'secondary_db_name',
+        'secondary_db_table'] + HasCurrentAdmin.list_filter
 
 
 @admin.register(MasterMiscSet)
@@ -225,8 +240,11 @@ class MasterMiscSetAdmin(admin.ModelAdmin):
               ('created_by', 'created_at'),
               ('modified_by', 'modified_at'))
     search_fields = ('name', 'description', 'code')
+    list_filter = ['code', 'name', 'description']
 
 
 @admin.register(MasterUnmappedReason)
 class MasterUnmappedReasonAdmin(admin.ModelAdmin):
     list_display = ('unmapped_reason_id', 'summary_description')
+    search_fields = ('summary_description',)
+    list_filter = ('summary_description',)
