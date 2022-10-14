@@ -43,10 +43,3 @@ class WebDataForm(forms.ModelForm):
             'data': forms.Textarea(attrs={'rows': 20, 'class': 'vLargeTextField'}),
             'comment': forms.Textarea(attrs={'rows': 7, 'class': 'vLargeTextField'}),
         }
-
-    def get_initial_for_field(self, field, field_name):
-        if field_name == 'data':
-            return json.dumps(self.initial.get('data', field.initial), sort_keys=True, indent=4) if self.initial.get(
-                'data', field.initial) is not None else ""
-        else:
-            return super().get_initial_for_field(field, field_name)
