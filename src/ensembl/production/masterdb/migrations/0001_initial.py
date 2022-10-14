@@ -5,7 +5,6 @@ from django.db import migrations, models
 import django.db.models.deletion
 import ensembl.production.djcore.models
 import ensembl.production.masterdb.fields
-import jsonfield.fields
 import multiselectfield.db.fields
 
 
@@ -43,7 +42,7 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True, null=True, verbose_name='Created on')),
                 ('modified_at', models.DateTimeField(auto_now=True, null=True, verbose_name='Last Update')),
                 ('web_data_id', models.AutoField(primary_key=True, serialize=False)),
-                ('data', jsonfield.fields.JSONField(null=True)),
+                ('data', models.JSONField(null=True)),
                 ('comment', ensembl.production.djcore.models.NullTextField(blank=True, null=True)),
                 ('description', models.CharField(blank=True, max_length=255, null=True)),
                 ('created_by', ensembl.production.djcore.models.SpanningForeignKey(blank=True, db_column='created_by', db_constraint=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='webdata_created_by', related_query_name='webdata_creates', to=settings.AUTH_USER_MODEL)),
