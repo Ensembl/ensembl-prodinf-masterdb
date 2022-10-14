@@ -60,7 +60,6 @@ class WebData(BaseTimestampedModel, HasDescription):
         return 'web_data_id', 'data', 'description'
 
     def __str__(self):
-        print(type(self.data))
         data = json.loads(self.data) if isinstance(self.data, str) else self.data
         label_data = data.get('label_key', data.get('type', "N/A")) if self.data else ""
         return '{}-{}'.format(self.pk, label_data)
