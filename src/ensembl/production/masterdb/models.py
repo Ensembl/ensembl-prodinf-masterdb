@@ -7,7 +7,6 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 import json
 
-import jsonfield
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.template.defaultfilters import truncatechars
@@ -43,7 +42,7 @@ DB_TYPE_CHOICES_METAKEY = (('cdna', 'cdna'),
 
 class WebData(BaseTimestampedModel, HasDescription):
     web_data_id = models.AutoField(primary_key=True)
-    data = jsonfield.JSONField(null=True)
+    data = models.JSONField(null=True)
     comment = NullTextField(trim_cr=True)
     description = models.CharField(max_length=255, blank=True, null=True)
 
@@ -61,7 +60,8 @@ class WebData(BaseTimestampedModel, HasDescription):
         return 'web_data_id', 'data', 'description'
 
     def __str__(self):
-        label_data = self.data.get('label_key', self.data.get('type', "N/A")) if self.data else ""
+        data = json.loads(self.data) if isinstance(self.data, str) else self.data
+        label_data = data.get('label_key', data.get('type', "N/A")) if self.data else ""
         return '{}-{}'.format(self.pk, label_data)
 
 

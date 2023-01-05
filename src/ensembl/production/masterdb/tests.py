@@ -391,7 +391,7 @@ class AnalysisTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         analysis = AnalysisDescription.objects.get(logic_name='testwebtestdata5')
         self.assertEqual(analysis.web_data.data, json.loads('{"default": "normalupdated"}'))
-        self.assertEqual(WebData.objects.filter(data__contains="normalupdated").count(), 1)
+        self.assertEqual(WebData.objects.filter(data__default="normalupdated").count(), 1)
 
     def testWebDataCreateUpdate(self):
         valid_payload = {
