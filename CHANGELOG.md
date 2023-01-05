@@ -1,6 +1,10 @@
 CHANGELOG - Ensembl Prodinf MasterDB
 ====================================
 
+1.2.0
+-----
+- Removed reference to django-jsonfield, because integrated in main Django now
+
 1.1
 ---
 - Change Attrib Types "Code" field to be read-only
