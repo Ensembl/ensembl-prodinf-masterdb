@@ -105,9 +105,14 @@ class AttribTypeAdmin(HasCurrentAdmin):
     inlines = (AttribInline,)
     list_filter = ['code', 'name'] + HasCurrentAdmin.list_filter
 
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.code = form.cleaned_data['code']
+        super().save_model(request, obj, form, change)
+
     def get_readonly_fields(self, request, obj=None):
         read_only_fields = super().get_readonly_fields(request, obj)
-        if obj is not None and 'code' not in read_only_fields:
+        if obj is not None and 'code' not in read_only_fields and not request.user.is_superuser:
             read_only_fields += ['code', ]
         return read_only_fields
 
