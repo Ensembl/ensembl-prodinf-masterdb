@@ -112,8 +112,9 @@ class AttribTypeAdmin(HasCurrentAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         read_only_fields = super().get_readonly_fields(request, obj)
-        if not request.user.is_superuser:
-            read_only_fields += ['code', ]
+        if request.user.is_superuser or obj is None:
+             return [ i for i in read_only_fields if i != 'code' ]
+        read_only_fields += ['code', ]
         return read_only_fields
 
 
