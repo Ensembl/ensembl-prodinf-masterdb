@@ -17,7 +17,7 @@ from django.contrib import messages
 from ensembl.production.djcore.admin import ProductionUserAdminMixin
 from ensembl.production.djcore.utils import flatten
 
-from .filters import IsCurrentFilter
+from .filters import IsCurrentFilter, DBTypeFilter, BioTypeFilter
 from .forms import AnalysisDescriptionForm, WebDataForm
 from .models import *
 
@@ -154,8 +154,8 @@ class BioTypeAdmin(HasCurrentAdmin):
         'so_term')
     search_fields = (
         'name', 'object_type', 'db_type', 'biotype_group', 'attrib_type__name', 'description', 'so_acc', 'so_term')
-    list_filter = [
-        'name', 'object_type', 'db_type', 'biotype_group', 'so_acc', 'so_term'] + HasCurrentAdmin.list_filter
+    list_filter = ['name', 'object_type', 'biotype_group', 'so_acc', 'so_term'] + HasCurrentAdmin.list_filter + \
+                  [BioTypeFilter]
 
 
 @admin.register(AnalysisDescription)
@@ -185,7 +185,7 @@ class MetakeyAdmin(HasCurrentAdmin):
               ('modified_by', 'modified_at'))
     ordering = ('name',)
     search_fields = ('name', 'db_type', 'description')
-    list_filter = ['name', 'db_type', 'is_optional'] + HasCurrentAdmin.list_filter
+    list_filter = ['name', 'is_optional'] + HasCurrentAdmin.list_filter + [DBTypeFilter]
 
     def get_readonly_fields(self, request, obj=None):
         read_only_fields = super().get_readonly_fields(request, obj)
