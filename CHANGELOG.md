@@ -1,5 +1,8 @@
 CHANGELOG - Ensembl Prodinf MasterDB
 ====================================
+1.2.2
+-----
+- Fixed filtering on db_types for Biotype and MetaKey
 
 1.2.0
 -----
