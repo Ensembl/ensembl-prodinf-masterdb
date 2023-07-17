@@ -11,6 +11,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.template.defaultfilters import truncatechars
 from multiselectfield import MultiSelectField
+import jsonfield.fields
 
 from ensembl.production.djcore.models import NullTextField, BaseTimestampedModel, HasCurrent, HasDescription
 from ensembl.production.djcore.fields import EnumField
@@ -42,7 +43,7 @@ DB_TYPE_CHOICES_METAKEY = (('cdna', 'cdna'),
 
 class WebData(BaseTimestampedModel, HasDescription):
     web_data_id = models.AutoField(primary_key=True)
-    data = models.JSONField(null=True)
+    data = jsonfield.JSONField(null=True)
     comment = NullTextField(trim_cr=True)
     description = models.CharField(max_length=255, blank=True, null=True)
 
