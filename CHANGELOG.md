@@ -1,5 +1,9 @@
 CHANGELOG - Ensembl Prodinf MasterDB
 ====================================
+1.2.3
+-----
+- Reverted  to django-jsonfield, JSON_EXRACT is not supported for mysql
+
 1.2.2
 -----
 - Fixed filtering on db_types for Biotype and MetaKey
