@@ -187,11 +187,12 @@ class MetakeyAdmin(HasCurrentAdmin):
     search_fields = ('name', 'db_type', 'description')
     list_filter = ['name', 'is_optional'] + HasCurrentAdmin.list_filter + [DBTypeFilter]
 
-    def get_readonly_fields(self, request, obj=None):
-        read_only_fields = super().get_readonly_fields(request, obj)
-        if obj is not None and 'name' not in read_only_fields:
-            read_only_fields += ['name', ]
-        return read_only_fields
+    def get_readonly_fields(self, request, obj=None): 
+        
+        if obj is None :
+            return [ str(i)  for i in super().get_readonly_fields(request, obj) if str(i) != 'name'  ]
+          
+        return [ str(i) for i in super().get_readonly_fields(request, obj) ] + ['name']
 
 
 @admin.register(WebData)
