@@ -154,9 +154,9 @@ class BioTypeAdmin(HasCurrentAdmin):
         'so_term')
     search_fields = (
         'name', 'object_type', 'db_type', 'biotype_group', 'attrib_type__name', 'description', 'so_acc', 'so_term')
-    list_filter = ['name', 'object_type', 'biotype_group', 'so_acc', 'so_term'] + HasCurrentAdmin.list_filter + \
-                  [BioTypeFilter]
-
+    
+    list_filter = ['name', 'object_type'] + [DBTypeFilter] + ['biotype_group', 'so_acc', 'so_term'] + HasCurrentAdmin.list_filter 
+   
 
 @admin.register(AnalysisDescription)
 class AnalysisDescriptionAdmin(HasCurrentAdmin):
@@ -185,7 +185,7 @@ class MetakeyAdmin(HasCurrentAdmin):
               ('modified_by', 'modified_at'))
     ordering = ('name',)
     search_fields = ('name', 'db_type', 'description')
-    list_filter = ['name', 'is_optional'] + HasCurrentAdmin.list_filter + [DBTypeFilter]
+    list_filter = ['name'] +  [DBTypeFilter] + ['is_optional'] + HasCurrentAdmin.list_filter 
 
     def get_readonly_fields(self, request, obj=None): 
         
