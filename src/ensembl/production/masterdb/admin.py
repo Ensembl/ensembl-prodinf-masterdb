@@ -13,7 +13,8 @@
 
 from django.contrib import admin
 from django.contrib import messages
-
+from django.http import HttpResponse
+import csv
 from ensembl.production.djcore.admin import ProductionUserAdminMixin
 from ensembl.production.djcore.utils import flatten
 
@@ -156,6 +157,20 @@ class BioTypeAdmin(HasCurrentAdmin):
         'name', 'object_type', 'db_type', 'biotype_group', 'attrib_type__name', 'description', 'so_acc', 'so_term')
     
     list_filter = ['name', 'object_type'] + [DBTypeFilter] + ['biotype_group', 'so_acc', 'so_term'] + HasCurrentAdmin.list_filter 
+
+    def export_as_csv(self, request, queryset):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="biotypes.csv"'
+        field_names = super().get_list_display(request)
+        writer = csv.writer(response)
+        writer.writerow(field_names)  
+        for obj in queryset:
+            writer.writerow([getattr(obj, field) for field in field_names])  
+        return response
+    
+    export_as_csv.short_description = "Export Selected Biotype as CSV"
+
+    actions = ['export_as_csv']
    
 
 @admin.register(AnalysisDescription)
