@@ -10,9 +10,8 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 import json
-
+from ckeditor.widgets import CKEditorWidget
 from django import forms
-
 from ensembl.production.masterdb.models import AnalysisDescription, WebData
 
 
@@ -43,3 +42,9 @@ class WebDataForm(forms.ModelForm):
             'data': forms.Textarea(attrs={'rows': 20, 'class': 'vLargeTextField'}),
             'comment': forms.Textarea(attrs={'rows': 7, 'class': 'vLargeTextField'}),
         }
+
+
+class MetaKeyForm(forms.ModelForm):
+    
+    note = forms.CharField(label="Note", widget=CKEditorWidget(), required=False)
+    example = forms.CharField(label="example", widget=forms.Textarea({'rows': 3}), required=False, max_length=255)

@@ -14,12 +14,13 @@
 from django.contrib import admin
 from django.contrib import messages
 from django.http import HttpResponse
+from django.utils.safestring import mark_safe
 import csv
 from ensembl.production.djcore.admin import ProductionUserAdminMixin
 from ensembl.production.djcore.utils import flatten
 
 from .filters import IsCurrentFilter, DBTypeFilter, BioTypeFilter
-from .forms import AnalysisDescriptionForm, WebDataForm
+from .forms import AnalysisDescriptionForm, MetaKeyForm, WebDataForm
 from .models import *
 
 
@@ -193,17 +194,35 @@ class AnalysisDescriptionAdmin(HasCurrentAdmin):
 
 @admin.register(MetaKey)
 class MetakeyAdmin(HasCurrentAdmin):
-    list_display = ('name', 'db_type', 'description', 'is_current', 'is_optional')
+    form=MetaKeyForm
+    list_display = ('name', 'db_type', 'description','is_current', 'is_optional')
     fields = ('name', 'description', 'db_type',
               ('is_optional', 'is_current', 'is_multi_value'),
+              ('note',),
+              ('example',),
               ('created_by', 'created_at'),
               ('modified_by', 'modified_at'))
     ordering = ('name',)
     search_fields = ('name', 'db_type', 'description')
     list_filter = ['name'] +  [DBTypeFilter] + ['is_optional'] + HasCurrentAdmin.list_filter 
+    
+    def note(self, obj):
+        if obj:
+            raw_data = obj.note
+            return mark_safe(raw_data.get('note'))
+        
+    def example(self, obj):
+        if obj:
+            raw_data = obj.example
+            return mark_safe(raw_data.get('example'))
+
+    def save_model(self, request, obj, form, change):        
+        obj.note = form.cleaned_data['note'].replace('\n', '').replace('\r', '').replace('\t', '')
+        obj.example = form.cleaned_data['example'].replace('\n', '').replace('\r', '').replace('\t', '')
+        super().save_model(request, obj, form, change)
 
     def get_readonly_fields(self, request, obj=None): 
-        
+
         if obj is None :
             return [ str(i)  for i in super().get_readonly_fields(request, obj) if str(i) != 'name'  ]
           
