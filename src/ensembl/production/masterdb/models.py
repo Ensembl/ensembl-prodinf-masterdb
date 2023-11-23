@@ -205,6 +205,9 @@ class MetaKey(HasCurrent, BaseTimestampedModel, HasDescription):
     db_type = MultiSelectField(choices=DB_TYPE_CHOICES_METAKEY)
     description = NullTextField(trim_cr=True)
     is_multi_value = models.BooleanField(default=False)
+    note = models.TextField(default="")
+    example = models.CharField(max_length=255, default="")
+
 
     class Meta:
         db_table = 'meta_key'
