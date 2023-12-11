@@ -16,29 +16,38 @@ import jsonfield.fields
 from ensembl.production.djcore.models import NullTextField, BaseTimestampedModel, HasCurrent, HasDescription
 from ensembl.production.djcore.fields import EnumField
 
-DB_TYPE_CHOICES_BIOTYPE = (('cdna', 'cdna'),
-                           ('core', 'core'),
-                           ('coreexpressionatlas', 'coreexpressionatlas'),
-                           ('coreexpressionest', 'coreexpressionest'),
-                           ('coreexpressiongnf', 'coreexpressiongnf'),
-                           ('funcgen', 'funcgen'),
-                           ('otherfeatures', 'otherfeatures'),
-                           ('rnaseq', 'rnaseq'),
-                           ('variation', 'variation'),
-                           ('vega', 'vega'),
-                           ('presite', 'presite'),
-                           ('sangervega', 'sangervega'))
+DB_TYPE_CHOICES_BIOTYPE = (
+    ('cdna', 'cdna'),
+    ('core', 'core'),
+    ('coreexpressionatlas', 'coreexpressionatlas'),
+    ('coreexpressionest', 'coreexpressionest'),
+    ('coreexpressiongnf', 'coreexpressiongnf'),
+    ('funcgen', 'funcgen'),
+    ('otherfeatures', 'otherfeatures'),
+    ('rnaseq', 'rnaseq'),
+    ('variation', 'variation'),
+    ('vega', 'vega'),
+    ('presite', 'presite'),
+    ('sangervega', 'sangervega')
+)
 
-DB_TYPE_CHOICES_METAKEY = (('cdna', 'cdna'),
-                           ('compara', 'compara'),
-                           ('core', 'core'),
-                           ('funcgen', 'funcgen'),
-                           ('otherfeatures', 'otherfeatures'),
-                           ('rnaseq', 'rnaseq'),
-                           ('variation', 'variation'),
-                           ('vega', 'vega'),
-                           ('presite', 'presite'),
-                           ('sangervega', 'sangervega'))
+DB_TYPE_CHOICES_METAKEY = (
+    ('cdna', 'cdna'),
+    ('compara', 'compara'),
+    ('core', 'core'),
+    ('funcgen', 'funcgen'),
+    ('otherfeatures', 'otherfeatures'),
+    ('rnaseq', 'rnaseq'),
+    ('variation', 'variation'),
+    ('vega', 'vega'),
+    ('presite', 'presite'),
+    ('sangervega', 'sangervega')
+)
+
+DC_META_SITE = (
+    ('Main', 'main'),
+    ('New Web', 'new')
+)
 
 
 class WebData(BaseTimestampedModel, HasDescription):
@@ -207,7 +216,8 @@ class MetaKey(HasCurrent, BaseTimestampedModel, HasDescription):
     is_multi_value = models.BooleanField(default=False)
     note = models.TextField(default="")
     example = models.CharField(max_length=255, default="")
-
+    target_site = models.CharField(choices=DC_META_SITE, null=False, default='main', max_length=127,
+                                   help_text="If mandatory only, tells which target site meta_key is mandatory for")
 
     class Meta:
         db_table = 'meta_key'
