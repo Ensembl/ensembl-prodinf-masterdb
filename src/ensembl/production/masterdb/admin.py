@@ -19,7 +19,7 @@ import csv
 from ensembl.production.djcore.admin import ProductionUserAdminMixin
 from ensembl.production.djcore.utils import flatten
 
-from .filters import IsCurrentFilter, DBTypeFilter, BioTypeFilter
+from .filters import IsCurrentFilter, DBTypeFilter, BioTypeFilter, TargetSiteFilter
 from .forms import AnalysisDescriptionForm, MetaKeyForm, WebDataForm
 from .models import *
 
@@ -115,7 +115,7 @@ class AttribTypeAdmin(HasCurrentAdmin):
     def get_readonly_fields(self, request, obj=None):
         read_only_fields = super().get_readonly_fields(request, obj)
         if request.user.is_superuser or obj is None:
-             return [ i for i in read_only_fields if i != 'code' ]
+            return [i for i in read_only_fields if i != 'code']
         read_only_fields += ['code', ]
         return read_only_fields
 
@@ -156,23 +156,24 @@ class BioTypeAdmin(HasCurrentAdmin):
         'so_term')
     search_fields = (
         'name', 'object_type', 'db_type', 'biotype_group', 'attrib_type__name', 'description', 'so_acc', 'so_term')
-    
-    list_filter = ['name', 'object_type'] + [DBTypeFilter] + ['biotype_group', 'so_acc', 'so_term'] + HasCurrentAdmin.list_filter 
+
+    list_filter = ['name', 'object_type'] + [DBTypeFilter] + ['biotype_group', 'so_acc',
+                                                              'so_term'] + HasCurrentAdmin.list_filter
 
     def export_as_csv(self, request, queryset):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="biotypes.csv"'
         field_names = super().get_list_display(request)
         writer = csv.writer(response)
-        writer.writerow(field_names)  
+        writer.writerow(field_names)
         for obj in queryset:
-            writer.writerow([getattr(obj, field) for field in field_names])  
+            writer.writerow([getattr(obj, field) for field in field_names])
         return response
-    
+
     export_as_csv.short_description = "Export Selected Biotype as CSV"
 
     actions = ['export_as_csv']
-   
+
 
 @admin.register(AnalysisDescription)
 class AnalysisDescriptionAdmin(HasCurrentAdmin):
@@ -194,39 +195,45 @@ class AnalysisDescriptionAdmin(HasCurrentAdmin):
 
 @admin.register(MetaKey)
 class MetakeyAdmin(HasCurrentAdmin):
-    form=MetaKeyForm
-    list_display = ('name', 'db_type', 'description','is_current', 'is_optional')
-    fields = ('name', 'description', 'db_type',
-              ('is_optional', 'is_current', 'is_multi_value'),
-              ('note',),
-              ('example',),
-              ('created_by', 'created_at'),
-              ('modified_by', 'modified_at'))
+    class Media:
+        css = {
+            'all': ('/static/production_db/css/prod_db.css',),
+        }
+
+    form = MetaKeyForm
+    list_display = ('name', 'db_type', 'description', 'target_site')
+    fieldsets = (
+        ("General", {"fields": ('name', 'description', 'is_optional', 'target_site')}),
+        ("Options", {"fields": ('db_type', 'is_current', 'is_multi_value')}),
+        ("Extra", {"fields": ('note', 'example')}),
+        ("Log", {"fields": ('created_by', 'created_at', 'modified_by', 'modified_at')})
+    )
     ordering = ('name',)
     search_fields = ('name', 'db_type', 'description')
-    list_filter = ['name'] +  [DBTypeFilter] + ['is_optional'] + HasCurrentAdmin.list_filter 
-    
+    list_filter = ['name'] + [DBTypeFilter, 'is_optional', TargetSiteFilter] + HasCurrentAdmin.list_filter
+
     def note(self, obj):
         if obj:
             raw_data = obj.note
             return mark_safe(raw_data.get('note'))
-        
+        return ""
+
     def example(self, obj):
         if obj:
             raw_data = obj.example
             return mark_safe(raw_data.get('example'))
+        return ""
 
-    def save_model(self, request, obj, form, change):        
+    def save_model(self, request, obj, form, change):
         obj.note = form.cleaned_data['note'].replace('\n', '').replace('\r', '').replace('\t', '')
         obj.example = form.cleaned_data['example'].replace('\n', '').replace('\r', '').replace('\t', '')
         super().save_model(request, obj, form, change)
 
-    def get_readonly_fields(self, request, obj=None): 
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            return [str(i) for i in super().get_readonly_fields(request, obj) if str(i) != 'name']
 
-        if obj is None :
-            return [ str(i)  for i in super().get_readonly_fields(request, obj) if str(i) != 'name'  ]
-          
-        return [ str(i) for i in super().get_readonly_fields(request, obj) ] + ['name']
+        return [str(i) for i in super().get_readonly_fields(request, obj)] + ['name']
 
 
 @admin.register(WebData)
@@ -268,8 +275,8 @@ class MasterExternalDbAdmin(HasCurrentAdmin):
         'db_name', 'db_release', 'status', 'db_display_name', 'priority', 'type', 'secondary_db_name',
         'secondary_db_table')
     list_filter = [
-        'db_name', 'db_release', 'status', 'db_display_name', 'priority', 'type', 'secondary_db_name',
-        'secondary_db_table'] + HasCurrentAdmin.list_filter
+                      'db_name', 'db_release', 'status', 'db_display_name', 'priority', 'type', 'secondary_db_name',
+                      'secondary_db_table'] + HasCurrentAdmin.list_filter
 
 
 @admin.register(MasterMiscSet)

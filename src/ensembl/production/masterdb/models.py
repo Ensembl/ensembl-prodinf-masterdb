@@ -45,8 +45,8 @@ DB_TYPE_CHOICES_METAKEY = (
 )
 
 DC_META_SITE = (
-    ('Main', 'main'),
-    ('New Web', 'new')
+    ('main', 'Main ensembl Web'),
+    ('new', 'New Website')
 )
 
 
@@ -209,14 +209,19 @@ class MasterUnmappedReason(HasCurrent, BaseTimestampedModel):
 
 class MetaKey(HasCurrent, BaseTimestampedModel, HasDescription):
     meta_key_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=64)
-    is_optional = models.BooleanField(default=False)
-    db_type = MultiSelectField(choices=DB_TYPE_CHOICES_METAKEY)
-    description = NullTextField(trim_cr=True)
-    is_multi_value = models.BooleanField(default=False)
-    note = models.TextField(default="")
-    example = models.CharField(max_length=255, default="")
-    target_site = models.CharField(choices=DC_META_SITE, null=False, default='main', max_length=127,
+    name = models.CharField(verbose_name="Name", max_length=64)
+    is_optional = models.BooleanField("Optional", default=False,
+                                      help_text="By Default meta key are mandatory, check this if not")
+    db_type = MultiSelectField(choices=DB_TYPE_CHOICES_METAKEY,
+                               help_text="Metakey check against DB Types")
+    description = NullTextField(trim_cr=True,
+                                help_text="Meta key description")
+    is_multi_value = models.BooleanField(default=False,
+                                         help_text="Whether Metakey can be set more than once")
+    note = models.TextField(default="",
+                            help_text="Internal note for Metakey")
+    example = models.CharField(max_length=255, default="", help_text="Example value")
+    target_site = MultiSelectField(choices=DC_META_SITE, null=False, default='main', max_length=127,
                                    help_text="If mandatory only, tells which target site meta_key is mandatory for")
 
     class Meta:

@@ -1,0 +1,29 @@
+.results td.field-data {
+    min-width: 500px;
+}
+
+.results td textarea {
+    width: 100%;
+    max-height: 180px;
+}
+
+
+
+
+.col-sm-7.field-db_type {
+  columns: 3; /* Adjust the number of columns as needed */
+}
+
+.col-sm-7.field-db_type label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+#id_target_site, #id_db_type{
+    list-style: none;
+    padding-left: 0;
+}
+
+#id_target_site input[type="checkbox"], #id_db_type input[type="checkbox"]{
+    margin-right: 1rem;
+}
