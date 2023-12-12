@@ -37,3 +37,4 @@ else:
             if 'max_length' not in kwargs:
                 kwargs["max_length"] = 256
             super(EnumField, self).__init__(*args, **kwargs)
+

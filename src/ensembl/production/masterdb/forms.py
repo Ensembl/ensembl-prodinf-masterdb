@@ -10,9 +10,14 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 import json
+import logging
+
 from ckeditor.widgets import CKEditorWidget
 from django import forms
 from ensembl.production.masterdb.models import AnalysisDescription, WebData
+from django.forms import widgets
+
+logger = logging.getLogger(__name__)
 
 
 class AnalysisDescriptionForm(forms.ModelForm):
@@ -22,8 +27,10 @@ class AnalysisDescriptionForm(forms.ModelForm):
 
     web_data_label = forms.CharField(required=False,
                                      label="WebData content (ReadOnly)",
-                                     widget=forms.Textarea(attrs={'rows': 10, 'cols': 40, 'class': 'vLargeTextField',
-                                                                  'readonly': 'readonly'}))
+                                     widget=forms.Textarea(attrs={
+                                         'rows': 10, 'cols': 40, 'class': 'vLargeTextField',
+                                         'readonly': 'readonly'
+                                     }))
 
     def __init__(self, *args, **kwargs):
         super(AnalysisDescriptionForm, self).__init__(*args, **kwargs)
@@ -34,17 +41,33 @@ class AnalysisDescriptionForm(forms.ModelForm):
             self.fields['web_data_label'].widget.attrs.update({'style': 'display:None'})
 
 
+class PrettyJSONWidget(widgets.Textarea):
+
+    def format_value(self, value):
+        try:
+
+            value = json.dumps(value, indent=2, sort_keys=True)
+            # these lines will try to adjust size of TextArea to fit to content
+            row_lengths = [len(r) for r in value.split('\n')]
+            self.attrs['rows'] = min(max(len(row_lengths) + 2, 10), 30)
+            self.attrs['cols'] = min(max(max(row_lengths) + 2, 40), 120)
+            return value
+        except Exception as e:
+            logger.warning("Error while formatting JSON: {}".format(e))
+            return super(PrettyJSONWidget, self).format_value(value)
+
+
 class WebDataForm(forms.ModelForm):
     class Meta:
         model = WebData
         fields = ('data', 'comment')
         widgets = {
-            'data': forms.Textarea(attrs={'rows': 20, 'class': 'vLargeTextField'}),
+            'data': PrettyJSONWidget(attrs={'rows': 20, 'class': 'vLargeTextField'}),
             'comment': forms.Textarea(attrs={'rows': 7, 'class': 'vLargeTextField'}),
         }
 
 
+
 class MetaKeyForm(forms.ModelForm):
-    
     note = forms.CharField(label="Note", widget=CKEditorWidget(), required=False)
     example = forms.CharField(label="example", widget=forms.Textarea({'rows': 3}), required=False, max_length=255)

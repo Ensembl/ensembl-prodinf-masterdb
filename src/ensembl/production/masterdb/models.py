@@ -16,29 +16,38 @@ import jsonfield.fields
 from ensembl.production.djcore.models import NullTextField, BaseTimestampedModel, HasCurrent, HasDescription
 from ensembl.production.djcore.fields import EnumField
 
-DB_TYPE_CHOICES_BIOTYPE = (('cdna', 'cdna'),
-                           ('core', 'core'),
-                           ('coreexpressionatlas', 'coreexpressionatlas'),
-                           ('coreexpressionest', 'coreexpressionest'),
-                           ('coreexpressiongnf', 'coreexpressiongnf'),
-                           ('funcgen', 'funcgen'),
-                           ('otherfeatures', 'otherfeatures'),
-                           ('rnaseq', 'rnaseq'),
-                           ('variation', 'variation'),
-                           ('vega', 'vega'),
-                           ('presite', 'presite'),
-                           ('sangervega', 'sangervega'))
+DB_TYPE_CHOICES_BIOTYPE = (
+    ('cdna', 'cdna'),
+    ('core', 'core'),
+    ('coreexpressionatlas', 'coreexpressionatlas'),
+    ('coreexpressionest', 'coreexpressionest'),
+    ('coreexpressiongnf', 'coreexpressiongnf'),
+    ('funcgen', 'funcgen'),
+    ('otherfeatures', 'otherfeatures'),
+    ('rnaseq', 'rnaseq'),
+    ('variation', 'variation'),
+    ('vega', 'vega'),
+    ('presite', 'presite'),
+    ('sangervega', 'sangervega')
+)
 
-DB_TYPE_CHOICES_METAKEY = (('cdna', 'cdna'),
-                           ('compara', 'compara'),
-                           ('core', 'core'),
-                           ('funcgen', 'funcgen'),
-                           ('otherfeatures', 'otherfeatures'),
-                           ('rnaseq', 'rnaseq'),
-                           ('variation', 'variation'),
-                           ('vega', 'vega'),
-                           ('presite', 'presite'),
-                           ('sangervega', 'sangervega'))
+DB_TYPE_CHOICES_METAKEY = (
+    ('cdna', 'cdna'),
+    ('compara', 'compara'),
+    ('core', 'core'),
+    ('funcgen', 'funcgen'),
+    ('otherfeatures', 'otherfeatures'),
+    ('rnaseq', 'rnaseq'),
+    ('variation', 'variation'),
+    ('vega', 'vega'),
+    ('presite', 'presite'),
+    ('sangervega', 'sangervega')
+)
+
+DC_META_SITE = (
+    ('main', 'Main ensembl Web'),
+    ('new', 'New Website')
+)
 
 
 class WebData(BaseTimestampedModel, HasDescription):
@@ -50,7 +59,8 @@ class WebData(BaseTimestampedModel, HasDescription):
     class Meta:
         app_label = 'ensembl_production_db'
         db_table = 'web_data'
-        verbose_name = 'WebData'
+        verbose_name = 'Web Data'
+        verbose_name_plural = 'Web datas'
 
     @property
     def label(self):
@@ -93,7 +103,7 @@ class MasterAttribType(HasCurrent, BaseTimestampedModel, HasDescription):
     class Meta:
         db_table = 'master_attrib_type'
         app_label = 'ensembl_production_db'
-        verbose_name = 'AttribType'
+        verbose_name = 'Attributes Type'
 
     def __str__(self):
         return '{}'.format(self.name)
@@ -107,7 +117,8 @@ class MasterAttrib(HasCurrent, BaseTimestampedModel):
     class Meta:
         db_table = 'master_attrib'
         app_label = 'ensembl_production_db'
-        verbose_name = 'Attrib'
+        verbose_name = 'Attribute'
+        verbose_name_plural = "Attributes"
         unique_together = [("attrib_type", "value")]
 
     def __str__(self):
@@ -126,7 +137,8 @@ class MasterAttribSet(HasCurrent, BaseTimestampedModel):
     class Meta:
         db_table = 'master_attrib_set'
         app_label = 'ensembl_production_db'
-        verbose_name = 'AttribSet'
+        verbose_name = 'Attributes Set'
+        verbose_name_plural = 'Attributes Sets'
         unique_together = [('attrib_set_id', 'attrib')]
 
 
@@ -149,7 +161,8 @@ class MasterBiotype(HasCurrent, BaseTimestampedModel, HasDescription):
         db_table = 'master_biotype'
         app_label = 'ensembl_production_db'
         unique_together = (('name', 'object_type'),)
-        verbose_name = 'Biotype'
+        verbose_name = 'BioType'
+        verbose_name_plural = "BioTypes"
 
 
 class MasterExternalDb(HasCurrent, BaseTimestampedModel, HasDescription):
@@ -170,6 +183,7 @@ class MasterExternalDb(HasCurrent, BaseTimestampedModel, HasDescription):
         app_label = 'ensembl_production_db'
         unique_together = (('db_name', 'db_release', 'is_current'),)
         verbose_name = 'External DB'
+        verbose_name_plural = 'External DBs'
 
 
 class MasterMiscSet(HasCurrent, BaseTimestampedModel, HasDescription):
@@ -182,9 +196,11 @@ class MasterMiscSet(HasCurrent, BaseTimestampedModel, HasDescription):
     class Meta:
         app_label = 'ensembl_production_db'
         db_table = 'master_misc_set'
+        verbose_name = "Miscellaneous Set"
+        verbose_name_plural = "Miscellaneous Sets"
 
 
-class MasterUnmappedReason(HasCurrent, BaseTimestampedModel):
+class MasterUnmappedReason(BaseTimestampedModel, HasCurrent):
     unmapped_reason_id = models.AutoField(primary_key=True)
     summary_description = models.CharField(max_length=255, blank=True, null=True)
     full_description = models.CharField(max_length=255, blank=True, null=True)
@@ -192,6 +208,8 @@ class MasterUnmappedReason(HasCurrent, BaseTimestampedModel):
     class Meta:
         app_label = 'ensembl_production_db'
         db_table = 'master_unmapped_reason'
+        verbose_name = 'Unmapped Reason'
+        verbose_name_plural = 'Unmapped Reasons'
 
     @property
     def short_description(self):
@@ -200,14 +218,20 @@ class MasterUnmappedReason(HasCurrent, BaseTimestampedModel):
 
 class MetaKey(HasCurrent, BaseTimestampedModel, HasDescription):
     meta_key_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=64)
-    is_optional = models.BooleanField(default=False)
-    db_type = MultiSelectField(choices=DB_TYPE_CHOICES_METAKEY)
-    description = NullTextField(trim_cr=True)
-    is_multi_value = models.BooleanField(default=False)
-    note = models.TextField(default="")
-    example = models.CharField(max_length=255, default="")
-
+    name = models.CharField(verbose_name="Name", max_length=64)
+    is_optional = models.BooleanField("Optional", default=False,
+                                      help_text="By Default meta key are mandatory, check this if not")
+    db_type = MultiSelectField(choices=DB_TYPE_CHOICES_METAKEY,
+                               help_text="Metakey check against DB Types")
+    description = NullTextField(trim_cr=True,
+                                help_text="Meta key description")
+    is_multi_value = models.BooleanField(default=False,
+                                         help_text="Whether Metakey can be set more than once")
+    note = models.TextField(default="",
+                            help_text="Internal note for Metakey")
+    example = models.CharField(max_length=255, default="", help_text="Example value")
+    target_site = MultiSelectField(choices=DC_META_SITE, null=False, default='main', max_length=127,
+                                   help_text="If mandatory only, tells which target site meta_key is mandatory for")
 
     class Meta:
         db_table = 'meta_key'

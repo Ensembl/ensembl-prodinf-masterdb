@@ -16,7 +16,7 @@ DEBUG = True
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = '!$hfny5#0soe435!a)fhmv!egr)*8p*lkpv$^&e#=yxt&yd-wc'
+SECRET_KEY = 'THIS_IS_A_SECRET_KEY'
 
 ALLOWED_HOSTS = []
 
