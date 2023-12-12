@@ -82,7 +82,7 @@ class AttribSetInline(ProductionTabularInline):
 class AnalysisDescriptionInline(ProductionTabularInline):
     model = AnalysisDescription
     extra = 0
-    fields = ('logic_name', 'display_label', 'description', 'db_version', 'displayable')
+    fields = ('logic_name', 'display_label')
     readonly_fields = ('logic_name', 'display_label', 'description', 'db_version', 'displayable')
 
     def has_add_permission(self, request, obj=None):
@@ -100,12 +100,13 @@ class HasCurrentAdmin(ProductionModelAdmin):
 @admin.register(MasterAttribType)
 class AttribTypeAdmin(HasCurrentAdmin):
     list_display = ('code', 'name', 'description', 'is_current')
-    fields = ('code', 'name', 'description',
-              ('created_by', 'created_at'),
-              ('modified_by', 'modified_at'))
     search_fields = ('code', 'name', 'description')
     inlines = (AttribInline,)
     list_filter = ['code', 'name'] + HasCurrentAdmin.list_filter
+    fieldsets = (
+        ("General", {"fields": ('code', 'name', 'description')}),
+        ("Log", {"fields": ('created_by', 'created_at', 'modified_by', 'modified_at')})
+    )
 
     def save_model(self, request, obj, form, change):
         if not change:
@@ -122,35 +123,38 @@ class AttribTypeAdmin(HasCurrentAdmin):
 
 @admin.register(MasterAttrib)
 class AttribAdmin(HasCurrentAdmin):
-    list_display = ('attrib_id', 'value', 'attrib_type', 'is_current')
-    fields = ('value', 'attrib_type',
-              ('created_by', 'created_at'),
-              ('modified_by', 'modified_at'))
-    # readonly_fields = ('attrib_id',)
+    list_display = ('value', 'attrib_type', 'is_current', 'attrib_id',)
     search_fields = ('attrib_id', 'value', 'attrib_type__name')
+    fieldsets = (
+        ("General", {"fields": ('value', 'attrib_type')}),
+        ("Log", {"fields": ('created_by', 'created_at', 'modified_by', 'modified_at')})
+    )
 
 
 @admin.register(MasterAttribSet)
 class AttribSetAdmin(HasCurrentAdmin):
-    fields = ('attrib_set_id', 'attrib', 'is_current',
-              ('created_by', 'created_at'),
-              ('modified_by', 'modified_at')
-              )
-    list_display = ('attrib_set_id', 'attrib', 'is_current')
+    list_display = ('attrib', 'is_current', 'attrib_set_id')
     search_fields = ('attrib__value', 'attrib_set_id')
     ordering = ('-modified_at',)
     list_filter = ['attrib_set_id', 'attrib'] + HasCurrentAdmin.list_filter
+    fieldsets = (
+        ("General", {"fields": ('attrib', 'is_current')}),
+        ("Log", {"fields": ('created_by', 'created_at', 'modified_by', 'modified_at')})
+    )
 
 
 @admin.register(MasterBiotype)
 class BioTypeAdmin(HasCurrentAdmin):
-    # TODO DBTYPE to add display inline+flex class
-    fields = ('name', 'object_type', 'db_type', 'biotype_group', 'attrib_type',
-              'description', 'so_acc', 'so_term',
-              ('is_dumped', 'is_current'),
-              ('created_by', 'created_at'),
-              ('modified_by', 'modified_at')
-              )
+    class Media:
+        css = {
+            'all': ('production_db/css/prod_db.css',)
+        }
+
+    fieldsets = (
+        ("General", {"fields": ('name', 'description', 'object_type', 'biotype_group', 'attrib_type')}),
+        ("Options", {"fields": ('so_acc', 'so_term', 'db_type', 'is_dumped', 'is_current')}),
+        ("Log", {"fields": ('created_by', 'created_at', 'modified_by', 'modified_at')})
+    )
     list_display = (
         'name', 'object_type', 'db_type', 'biotype_group', 'attrib_type', 'description', 'is_current', 'so_acc',
         'so_term')
@@ -178,14 +182,14 @@ class BioTypeAdmin(HasCurrentAdmin):
 @admin.register(AnalysisDescription)
 class AnalysisDescriptionAdmin(HasCurrentAdmin):
     form = AnalysisDescriptionForm
-    fields = ('logic_name', 'description', 'display_label', 'web_data',
-              'web_data_label',
-              ('db_version', 'displayable', 'is_current'),
-              ('created_by', 'created_at'),
-              ('modified_by', 'modified_at'))
     list_display = ('logic_name', 'short_description', 'web_data_label', 'is_current', 'displayable')
     search_fields = ('logic_name', 'display_label', 'description', 'web_data__data')
-    list_filter = ['logic_name', 'displayable'] + HasCurrentAdmin.list_filter
+    list_filter = ['displayable'] + HasCurrentAdmin.list_filter
+    fieldsets = (
+        ("General", {"fields": ('logic_name', 'description', 'display_label', 'web_data', 'web_data_label')}),
+        ("Options", {"fields": ('db_version', 'displayable', 'is_current')}),
+        ("Log", {"fields": ('created_by', 'created_at', 'modified_by', 'modified_at')})
+    )
 
     def web_data_label(self, obj):
         return obj.web_data.label if obj.web_data else 'EMPTY'
@@ -247,16 +251,17 @@ class WebDataAdmin(ProductionModelAdmin):
     list_display = ('pk', 'data', 'comment', 'modified_by')
     list_editable = ('comment', 'data')
     search_fields = ('pk', 'data', 'comment')
-    fields = ('data', 'comment',
-              ('created_by', 'created_at'),
-              ('modified_by', 'modified_at'))
+
     inlines = (AnalysisDescriptionInline,)
+    fieldsets = (
+        ('General', {'fields': ('data', 'comment')}),
+        ("Log", {"fields": ('created_by', 'created_at', 'modified_by', 'modified_at')})
+    )
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         msg = "Updating web data with multiple analysis description update it for all of them"
         if msg not in [m.message for m in messages.get_messages(request)]:
             messages.warning(request, msg)
-
         return super().change_view(request, object_id, form_url, extra_context)
 
 
@@ -264,35 +269,42 @@ class WebDataAdmin(ProductionModelAdmin):
 class MasterExternalDbAdmin(HasCurrentAdmin):
     list_display = ('db_name', 'db_release', 'status', 'db_display_name', 'priority', 'type', 'secondary_db_name',
                     'secondary_db_table', 'is_current')
-    fields = ('db_name', 'status', 'db_display_name',
-              'db_release', 'secondary_db_name',
-              'secondary_db_table', 'description',
-              'is_current',
-              ('priority', 'type'),
-              ('created_by', 'created_at'),
-              ('modified_by', 'modified_at'))
     search_fields = (
         'db_name', 'db_release', 'status', 'db_display_name', 'priority', 'type', 'secondary_db_name',
         'secondary_db_table')
-    list_filter = [
-                      'db_name', 'db_release', 'status', 'db_display_name', 'priority', 'type', 'secondary_db_name',
-                      'secondary_db_table'] + HasCurrentAdmin.list_filter
+    list_filter = ['db_name', 'db_release', 'status', 'db_display_name', 'priority', 'type', 'secondary_db_name',
+                   'secondary_db_table'] + HasCurrentAdmin.list_filter
+    fieldsets = (
+        ('General', {
+            'fields': ('db_name', 'status', 'db_display_name',
+                       'db_release', 'secondary_db_name',
+                       'secondary_db_table')
+        }),
+        ('Details', {'fields': ('description', 'is_current', ('priority', 'type'))}),
+        ("Log", {"fields": ('created_by', 'created_at', 'modified_by', 'modified_at')})
+    )
 
 
 @admin.register(MasterMiscSet)
-class MasterMiscSetAdmin(admin.ModelAdmin):
-    list_display = ('misc_set_id', 'code', 'name', 'short_description')
-    readonly_fields = ('misc_set_id',)
-    fields = ('misc_set_id', 'code', 'name',
-              'description', 'max_length', 'is_current',
-              ('created_by', 'created_at'),
-              ('modified_by', 'modified_at'))
+class MasterMiscSetAdmin(ProductionModelAdmin):
+    list_display = ('code', 'name', 'short_description', 'misc_set_id')
+    # readonly_fields = ('misc_set_id',)
     search_fields = ('name', 'description', 'code')
     list_filter = ['code', 'name', 'description']
+    fieldsets = (
+        ('General', {'fields': ('misc_set_id', 'code', 'name', 'description', 'max_length', 'is_current')}),
+        ("Log", {"fields": ('created_by', 'created_at', 'modified_by', 'modified_at')})
+    )
+
+    def get_readonly_fields(self, request, obj=None):
+        return super().get_readonly_fields(request, obj) + ['misc_set_id']
 
 
 @admin.register(MasterUnmappedReason)
-class MasterUnmappedReasonAdmin(admin.ModelAdmin):
-    list_display = ('unmapped_reason_id', 'summary_description')
+class MasterUnmappedReasonAdmin(ProductionModelAdmin):
+    list_display = ('summary_description', 'full_description')
     search_fields = ('summary_description',)
-    list_filter = ('summary_description',)
+    fieldsets = (
+        ('General', {'fields': ('summary_description', 'full_description')}),
+        ("Log", {"fields": ('created_by', 'created_at', 'modified_by', 'modified_at')})
+    )
