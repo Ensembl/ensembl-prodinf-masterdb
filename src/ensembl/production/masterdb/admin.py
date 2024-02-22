@@ -34,11 +34,8 @@ class ProductionModelAdmin(ProductionUserAdminMixin):
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj)
-        if not request.user.is_superuser:
-            flat = flatten(self.get_fields(request, obj))
-            for admin_only in self.super_user_only:
-                if admin_only in flat and admin_only not in readonly_fields:
-                    readonly_fields += [admin_only, ]
+        if request.user.is_superuser:
+            return ProductionModelAdmin.readonly_fields
         return readonly_fields
 
     def has_delete_permission(self, request, obj=None):
@@ -234,10 +231,10 @@ class MetakeyAdmin(HasCurrentAdmin):
         super().save_model(request, obj, form, change)
 
     def get_readonly_fields(self, request, obj=None):
+
         if obj is None:
             return [str(i) for i in super().get_readonly_fields(request, obj) if str(i) != 'name']
-
-        return [str(i) for i in super().get_readonly_fields(request, obj)] + ['name']
+        return [str(i) for i in super().get_readonly_fields(request, obj)] + ['name', 'is_optional', 'target_site']
 
 
 @admin.register(WebData)

@@ -1,5 +1,14 @@
 CHANGELOG - Ensembl Prodinf MasterDB
 ====================================
+1.2.6
+-----
+- Fixes 500 infinite recursion when no Super User
+
+1.2.5
+-----
+- Fixes some 500 issues
+- Refactored Display with dedicated tabs
+
 1.2.3
 -----
 - Reverted  to django-jsonfield, JSON_EXRACT is not supported for mysql
