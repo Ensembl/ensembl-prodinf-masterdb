@@ -231,9 +231,10 @@ class MetakeyAdmin(HasCurrentAdmin):
         super().save_model(request, obj, form, change)
 
     def get_readonly_fields(self, request, obj=None):
-
         if obj is None:
             return [str(i) for i in super().get_readonly_fields(request, obj) if str(i) != 'name']
+        if request.user.is_superuser:
+            return super().get_readonly_fields(request, obj)
         return [str(i) for i in super().get_readonly_fields(request, obj)] + ['name', 'is_optional', 'target_site']
 
 
