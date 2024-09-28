@@ -204,8 +204,9 @@ class MetakeyAdmin(HasCurrentAdmin):
     form = MetaKeyForm
     list_display = ('name', 'db_type', 'description', 'target_site')
     fieldsets = (
-        ("General", {"fields": ('name', 'description', 'is_optional', 'target_site')}),
-        ("Options", {"fields": ('db_type', 'is_current', 'is_multi_value')}),
+        ("General", {"fields": ('name', 'description', 'is_optional', 'is_optional_ensembl', 'is_current',
+                                'is_current_ensembl','target_site')}),
+        ("Options", {"fields": ('db_type', 'is_multi_value')}),
         ("Extra", {"fields": ('note', 'example')}),
         ("Log", {"fields": ('created_by', 'created_at', 'modified_by', 'modified_at')})
     )

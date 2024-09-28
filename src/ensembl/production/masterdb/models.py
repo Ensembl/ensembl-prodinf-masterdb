@@ -221,6 +221,8 @@ class MetaKey(HasCurrent, BaseTimestampedModel, HasDescription):
     name = models.CharField(verbose_name="Name", max_length=64)
     is_optional = models.BooleanField("Optional", default=False,
                                       help_text="By Default meta key are mandatory, check this if not")
+    is_optional_ensembl = models.BooleanField("Optional_ensembl", default=False,
+                                      help_text="Check this if meta key is optional for new ensembl site")
     db_type = MultiSelectField(choices=DB_TYPE_CHOICES_METAKEY,
                                help_text="Metakey check against DB Types")
     description = NullTextField(trim_cr=True,
@@ -232,11 +234,13 @@ class MetaKey(HasCurrent, BaseTimestampedModel, HasDescription):
     example = models.CharField(max_length=255, default="", help_text="Example value")
     target_site = MultiSelectField(choices=DC_META_SITE, null=False, default='main', max_length=127,
                                    help_text="If mandatory only, tells which target site meta_key is mandatory for")
+    is_current_ensembl = models.BooleanField(default=False,
+                                             help_text="Select All Meta Keys For New Ensembl Site")
 
     class Meta:
         db_table = 'meta_key'
         app_label = 'ensembl_production_db'
-        unique_together = ('name', 'is_optional', 'is_current')
+        unique_together = ('name', 'is_optional', 'is_current', 'is_current_ensembl')
 
     def clean(self):
         if MetaKey.objects.filter(name=self.name, is_optional=self.is_optional, is_current=self.is_current).exclude(
