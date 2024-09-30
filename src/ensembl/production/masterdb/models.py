@@ -240,7 +240,7 @@ class MetaKey(HasCurrent, BaseTimestampedModel, HasDescription):
     class Meta:
         db_table = 'meta_key'
         app_label = 'ensembl_production_db'
-        unique_together = ('name', 'is_optional', 'is_current', 'is_current_ensembl')
+        unique_together = ('name', 'is_optional', 'is_optional_ensembl',  'is_current', 'is_current_ensembl')
 
     def clean(self):
         if MetaKey.objects.filter(name=self.name, is_optional=self.is_optional, is_current=self.is_current).exclude(
