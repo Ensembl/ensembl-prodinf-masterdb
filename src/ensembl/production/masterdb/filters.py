@@ -58,18 +58,6 @@ class DBTypeFilter(BackEndListFilter):
             return queryset
 
 
-class TargetSiteFilter(BackEndListFilter):
-    title = 'Target Site'
-    parameter_name = 'target_site'
-    _lookups = DC_META_SITE
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(target_site__icontains=self.value())
-        elif self.value() is None:
-            return queryset
-
-
 class BioTypeFilter(BackEndListFilter):
     title = 'BioType'
     parameter_name = 'db_type'

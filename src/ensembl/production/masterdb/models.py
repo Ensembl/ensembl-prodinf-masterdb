@@ -221,8 +221,6 @@ class MetaKey(HasCurrent, BaseTimestampedModel, HasDescription):
     name = models.CharField(verbose_name="Name", max_length=64)
     is_optional = models.BooleanField("Optional", default=False,
                                       help_text="By Default meta key are mandatory, check this if not")
-    is_optional_ensembl = models.BooleanField("Optional_ensembl", default=False,
-                                      help_text="Check this if meta key is optional for new ensembl site")
     db_type = MultiSelectField(choices=DB_TYPE_CHOICES_METAKEY,
                                help_text="Metakey check against DB Types")
     description = NullTextField(trim_cr=True,
@@ -232,15 +230,40 @@ class MetaKey(HasCurrent, BaseTimestampedModel, HasDescription):
     note = models.TextField(default="",
                             help_text="Internal note for Metakey")
     example = models.CharField(max_length=255, default="", help_text="Example value")
-    target_site = MultiSelectField(choices=DC_META_SITE, null=False, default='main', max_length=127,
-                                   help_text="If mandatory only, tells which target site meta_key is mandatory for")
-    is_current_ensembl = models.BooleanField(default=False,
-                                             help_text="Select All Meta Keys For New Ensembl Site")
 
     class Meta:
         db_table = 'meta_key'
         app_label = 'ensembl_production_db'
-        unique_together = ('name', 'is_optional', 'is_optional_ensembl',  'is_current', 'is_current_ensembl')
+        unique_together = ('name', 'is_optional', 'is_current')
+
+    def clean(self):
+        if MetaKey.objects.filter(name=self.name, is_optional=self.is_optional, is_current=self.is_current).exclude(
+                pk=self.pk).exists():
+            raise ValidationError(
+                'Duplicated entry for %s (uniqueness check against is_optional, is_current, name FAILED)' % self.name)
+
+        return super().clean()
+
+
+class MetaKeyMVP(HasCurrent, BaseTimestampedModel, HasDescription):
+    meta_key_id = models.AutoField(primary_key=True)
+    name = models.CharField(verbose_name="Name", max_length=64)
+    is_optional = models.BooleanField("Optional", default=False,
+                                      help_text="By Default meta key are mandatory, check this if not")
+    db_type = MultiSelectField(choices=DB_TYPE_CHOICES_METAKEY,
+                               help_text="Metakey check against DB Types")
+    description = NullTextField(trim_cr=True,
+                                help_text="Meta key description")
+    is_multi_value = models.BooleanField(default=False,
+                                         help_text="Whether Metakey can be set more than once")
+    note = models.TextField(default="",
+                            help_text="Internal note for Metakey")
+    example = models.CharField(max_length=255, default="", help_text="Example value")
+
+    class Meta:
+        db_table = 'meta_key_mvp'
+        app_label = 'ensembl_production_db'
+        unique_together = ('name', 'is_optional', 'is_current')
 
     def clean(self):
         if MetaKey.objects.filter(name=self.name, is_optional=self.is_optional, is_current=self.is_current).exclude(

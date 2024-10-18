@@ -19,7 +19,7 @@ import csv
 from ensembl.production.djcore.admin import ProductionUserAdminMixin
 from ensembl.production.djcore.utils import flatten
 
-from .filters import IsCurrentFilter, DBTypeFilter, BioTypeFilter, TargetSiteFilter
+from .filters import IsCurrentFilter, DBTypeFilter, BioTypeFilter
 from .forms import AnalysisDescriptionForm, MetaKeyForm, WebDataForm
 from .models import *
 
@@ -202,17 +202,16 @@ class MetakeyAdmin(HasCurrentAdmin):
         }
 
     form = MetaKeyForm
-    list_display = ('name', 'db_type', 'description', 'target_site')
+    list_display = ('name', 'db_type', 'description')
     fieldsets = (
-        ("General", {"fields": ('name', 'description', 'is_optional', 'is_optional_ensembl', 'is_current',
-                                'is_current_ensembl','target_site')}),
+        ("General", {"fields": ('name', 'description', 'is_optional', 'is_current')}),
         ("Options", {"fields": ('db_type', 'is_multi_value')}),
         ("Extra", {"fields": ('note', 'example')}),
         ("Log", {"fields": ('created_by', 'created_at', 'modified_by', 'modified_at')})
     )
     ordering = ('name',)
     search_fields = ('name', 'db_type', 'description')
-    list_filter = ['name'] + [DBTypeFilter, 'is_optional', TargetSiteFilter] + HasCurrentAdmin.list_filter
+    list_filter = ['name'] + [DBTypeFilter, 'is_optional'] + HasCurrentAdmin.list_filter
 
     def note(self, obj):
         if obj:
@@ -236,7 +235,51 @@ class MetakeyAdmin(HasCurrentAdmin):
             return [str(i) for i in super().get_readonly_fields(request, obj) if str(i) != 'name']
         if request.user.is_superuser:
             return super().get_readonly_fields(request, obj)
-        return [str(i) for i in super().get_readonly_fields(request, obj)] + ['name', 'is_optional', 'target_site']
+        return [str(i) for i in super().get_readonly_fields(request, obj)] + ['name', 'is_optional']
+
+
+@admin.register(MetaKeyMVP)
+class MetakeyMVPAdmin(HasCurrentAdmin):
+    class Media:
+        css = {
+            'all': ('/static/production_db/css/prod_db.css',),
+        }
+
+    form = MetaKeyForm
+    list_display = ('name', 'db_type', 'description')
+    fieldsets = (
+        ("General", {"fields": ('name', 'description', 'is_optional', 'is_current')}),
+        ("Options", {"fields": ('db_type', 'is_multi_value')}),
+        ("Extra", {"fields": ('note', 'example')}),
+        ("Log", {"fields": ('created_by', 'created_at', 'modified_by', 'modified_at')})
+    )
+    ordering = ('name',)
+    search_fields = ('name', 'db_type', 'description')
+    list_filter = ['name'] + [DBTypeFilter, 'is_optional'] + HasCurrentAdmin.list_filter
+
+    def note(self, obj):
+        if obj:
+            raw_data = obj.note
+            return mark_safe(raw_data.get('note'))
+        return ""
+
+    def example(self, obj):
+        if obj:
+            raw_data = obj.example
+            return mark_safe(raw_data.get('example'))
+        return ""
+
+    def save_model(self, request, obj, form, change):
+        obj.note = form.cleaned_data['note'].replace('\n', '').replace('\r', '').replace('\t', '')
+        obj.example = form.cleaned_data['example'].replace('\n', '').replace('\r', '').replace('\t', '')
+        super().save_model(request, obj, form, change)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            return [str(i) for i in super().get_readonly_fields(request, obj) if str(i) != 'name']
+        if request.user.is_superuser:
+            return super().get_readonly_fields(request, obj)
+        return [str(i) for i in super().get_readonly_fields(request, obj)] + ['name', 'is_optional']
 
 
 @admin.register(WebData)
